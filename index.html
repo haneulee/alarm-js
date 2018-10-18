@@ -1,49 +1,73 @@
 <!DOCTYPE html>
 <html>
-  <head>
-      <meta charset="UTF-8" />
-      <title>ALARM</title>
-  </head>
-  <body>
-  
-    <form name=exf1>
-    <B>알람설정 :</B>
-    <input type=text name=h size=2>시  <input type=text name=m size=2> 분 <input type=text name=s size=2>초 
-    <input type=button name=b onclick=setAlarm() value="Set Alarm"><input type=button name=r onclick=clearAlarm() value="Turn Alarm Off"><BR>
-    <B>현재시간 :</B> 
-    <input type=text name=ch size=2>시<input type=text name=cm size=2>분 <input type=text name=cs size=2>초
-    </form>
-    
-    <script>
-      var alarmTimer = null;
-      var alarmSet;
-      
-      function setAlarm()   { alarmSet = true;  }
-      function clearAlarm() { alarmSet = false; }
-      function initAlarm() {
-        if (alarmTimer!=null)clearInterval(alarmTimer);
-        var nowTime = new Date();
-        clearAlarm();
-        document.exf1.h.value = nowTime.getHours();
-        document.exf1.m.value = nowTime.getMinutes();
-        document.exf1.s.value = nowTime.getSeconds();
-        alarmTimer=setInterval("countTime()",1000);
-      }
-      function matchH() { return (document.exf1.ch.value == document.exf1.h.value); }
-      function matchM() { return (document.exf1.cm.value == document.exf1.m.value); }
-      function matchS() { return (document.exf1.cs.value == document.exf1.s.value); }
-      function countTime() {
-        var nowTime = new Date();
-        document.exf1.ch.value = nowTime.getHours();
-        document.exf1.cm.value = nowTime.getMinutes();
-        document.exf1.cs.value = nowTime.getSeconds();
-        if (matchH() && matchM() && matchS()) {
-          alert("뚜뚜뚜뚜...일어나세요... ");
-        }
-      }
-      onload=initAlarm;
-    </script>
-  
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width">
+  <title>KAKAO ALARM</title>
+</head>
+
+<body>
+  <form name=alarmForm>
+    <div>
+      <b>현재시간 :</b>
+      <input type=text name=ch size=2>시
+      <input type=text name=cm size=2>분
+      <input type=text name=cs size=2>초
+      <span id=curTime></span>
+    </div>
+    <div>
+      <b>시간설정 :</b>
+      <input type=text name=sh size=2>시
+      <input type=text name=sm size=2>분
+      <input type=text name=ss size=2>초
+      <!-- <button id="setTime">설정</button> -->
+      <input type=button name=setTime value="설정">
+      <!-- html5괜찮으면 input type datelocal으로 -->
+    </div>
+    <div>
+      <b>시계모드 :</b>
+      <select name=clockMode>
+        <option value="일반">일반</option>
+        <option value="진동">진동</option>
+        <option value="야간">야간</option>
+      </select>
+    </div>
+    <div>
+      <b>알람모드 :</b>
+      <select name=alarmMode>
+        <option value="일반">일반</option>
+        <option value="긴급">긴급</option>
+      </select>
+    </div>
+    <div>
+      <b>알람시간 :</b>
+      <input type=text name=h size=2>시
+      <input type=text name=m size=2>분
+      <!-- <input type=text name=s size=2>초</div> -->
+      <div>
+        <b>내용 :</b>
+        <input type=text name=content placeholder="알람 내용을 입력하시오...">
+      </div>
+      <br>
+      <input type=button name=add value="알람추가">
+      <!-- <input type=button name=r onclick=clearAlarm() value="Turn Alarm Off"> -->
+
+  </form>
+  <ul id="list">
+    <li>
+      <span>9:00 출근</span>
+      <button>끄기</button>
+      <button>삭제</button>
+    </li>
+  </ul>
+
+  <script type='text/javascript' src="alarm.js"></script>
+  <script type='text/javascript'>
+
+    onload = Alarm.initAlarm;
+  </script>
+
+</body>
+
 </html>
-    
