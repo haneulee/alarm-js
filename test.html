@@ -1,15 +1,66 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
   <title>QUnit Example</title>
   <link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.7.1.css">
 </head>
+
 <body>
   <div id="qunit"></div>
-  <div id="qunit-fixture"></div>
-  <script src="https://code.jquery.com/qunit/qunit-2.7.1.js"></script>
-  <script src="tests.js"></script>
+  <div id="qunit-fixture">
+    <form name=alarmForm>
+      <div>
+        <b>현재시간 :</b>
+        <input type=text name=ch size=2>시
+        <input type=text name=cm size=2>분
+        <input type=text name=cs size=2>초
+        <span id=curTime></span>
+      </div>
+      <div>
+        <b>시간설정 :</b>
+        <input type=text name=sh size=2>시
+        <input type=text name=sm size=2>분
+        <input type=text name=ss size=2>초
+        <!-- <button id="setTime">설정</button> -->
+        <input type=button name=setTime value="설정">
+        <!-- html5괜찮으면 input type datelocal으로 -->
+      </div>
+      <div>
+        <b>시계모드 :</b>
+        <select name=clockMode>
+          <option value="일반">일반</option>
+          <option value="진동">진동</option>
+          <option value="야간">야간</option>
+        </select>
+      </div>
+      <div>
+        <b>알람모드 :</b>
+        <select name=alarmMode>
+          <option value="일반">일반</option>
+          <option value="긴급">긴급</option>
+        </select>
+      </div>
+      <div>
+        <b>알람시간 :</b>
+        <input type=text name=h size=2>시
+        <input type=text name=m size=2>분
+        <div>
+          <b>내용 :</b>
+          <input type=text name=content placeholder="알람 내용을 입력하시오...">
+        </div>
+        <br>
+        <input type=button name=add value="알람추가">
+        <input type=button name=clear value="알람전체삭제">
+    </form>
+    <ul id="list">
+    </ul>
+    </div>
+    <script src="https://code.jquery.com/qunit/qunit-2.7.1.js"></script>
+    <script type='text/javascript' src="alarm.js"></script>
+    <script src="tests.js"></script>
 </body>
+
 </html>

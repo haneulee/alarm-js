@@ -4,11 +4,11 @@ var Alarm = (function() {
     listEl = document.getElementById("list"),
     currentTime;
 
-  function initAlarm(e) {
+  function initAlarm() {
     currentTime = currentTime || new Date();
 
     if (alarmTimer != null) clearInterval(alarmTimer);
-    
+
     document.alarmForm.h.value = currentTime.getHours();
     document.alarmForm.m.value = currentTime.getMinutes();
     document.alarmForm.add.addEventListener("click", function() {
@@ -38,18 +38,25 @@ var Alarm = (function() {
   function setAlarm() {
     alarmSet = true;
 
-    if (isNaN(document.alarmForm.h.value) 
-        || isNaN(document.alarmForm.m.value) 
-        || !document.alarmForm.content.value) {
-        window.alert("값을 입력해주세요!");
-        return;
+    if (
+      isNaN(document.alarmForm.h.value) ||
+      isNaN(document.alarmForm.m.value) ||
+      !document.alarmForm.content.value
+    ) {
+      window.alert("값을 입력해주세요!");
+      return;
     }
 
     var alarmStorage = localStorage.getItem("alarm"),
       newAlarm = {
-        id: '_' + Math.random().toString(36).substr(2, 9),
+        id:
+          "_" +
+          Math.random()
+            .toString(36)
+            .substr(2, 9),
         msg: document.alarmForm.content.value,
-        time: document.alarmForm.h.value * 3600 + document.alarmForm.m.value * 60, //currentTime || new Date(),
+        time:
+          document.alarmForm.h.value * 3600 + document.alarmForm.m.value * 60, //currentTime || new Date(),
         snooze: false,
         alarmMode: document.alarmForm.alarmMode.value,
         clockMode: document.alarmForm.clockMode.value
@@ -71,7 +78,11 @@ var Alarm = (function() {
 
   function updateAlarm() {
     var alarmList = localStorage.getItem("alarm"),
-      i, time, h, m, color;
+      i,
+      time,
+      h,
+      m,
+      color;
 
     if (!alarmList) {
       return;
@@ -85,13 +96,24 @@ var Alarm = (function() {
     for (i = 0; i < alarmList.length; i++) {
       time = alarmList[i].time;
       h = Math.floor(time / 3600);
-      m = Math.floor(time % 3600 / 60);
+      m = Math.floor((time % 3600) / 60);
       color = alarmList[i].snooze ? 'style="color:green;"' : "";
-      
-      listEl.innerHTML += '<li id="' + alarmList[i].id + '"><span>' + (h < 10 ? "0" : "") + h + ':' + (m < 10 ? "0" : "") +  m + ' </span><span>' + alarmList[i].msg 
-      + '</span><input type=button name=snooze ' + color + ' value="끄기"><input type=button name=delete value="삭제"></li>';
-    }
 
+      listEl.innerHTML +=
+        '<li id="' +
+        alarmList[i].id +
+        '"><span>' +
+        (h < 10 ? "0" : "") +
+        h +
+        ":" +
+        (m < 10 ? "0" : "") +
+        m +
+        " </span><span>" +
+        alarmList[i].msg +
+        "</span><input type=button name=snooze " +
+        color +
+        ' value="끄기"><input type=button name=delete value="삭제"></li>';
+    }
   }
 
   function deleteAlarm(target) {
@@ -99,7 +121,7 @@ var Alarm = (function() {
       alarmList = JSON.parse(localStorage.getItem("alarm"));
 
     alarmList = alarmList.filter(function(item) {
-      return item.id !== targetId
+      return item.id !== targetId;
     });
 
     localStorage.setItem("alarm", JSON.stringify(alarmList));
@@ -113,9 +135,9 @@ var Alarm = (function() {
 
     for (i = 0; i < alarmList.length; i++) {
       if (alarmList[i].id == targetId) {
-        alarmList[i].snooze = !(alarmList[i].snooze);
+        alarmList[i].snooze = !alarmList[i].snooze;
         target.style.color = alarmList[i].snooze === true ? "green" : "black";
-         break;
+        break;
       }
     }
 
@@ -146,7 +168,11 @@ var Alarm = (function() {
     var s = currentTime.getSeconds(),
       m = currentTime.getMinutes(),
       h = currentTime.getHours(),
-      alarmList, i, time, ah, am;
+      alarmList,
+      i,
+      time,
+      ah,
+      am;
 
     s += 1;
 
@@ -162,7 +188,7 @@ var Alarm = (function() {
         for (i = 0; i < alarmList.length; i++) {
           time = alarmList[i].time;
           ah = Math.floor(time / 3600);
-          am = Math.floor(time % 3600 / 60);
+          am = Math.floor((time % 3600) / 60);
 
           if (m == am && h == ah) {
             popupAlarm(alarmList[i], ah, am);
@@ -197,7 +223,7 @@ var Alarm = (function() {
   }
 
   function popupAlarm(itemObj, h, m) {
-    var alarmType = "", 
+    var alarmType = "",
       text;
 
     if (itemObj.snooze) {
@@ -216,7 +242,7 @@ var Alarm = (function() {
       }
     }
 
-    text = h + ' : ' + m + '\n ' + itemObj.msg + '\n ' + alarmType + '입니다!!';
+    text = h + " : " + m + "\n " + itemObj.msg + "\n " + alarmType + "입니다!!";
 
     window.alert(text);
   }
