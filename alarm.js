@@ -5,12 +5,26 @@ var Alarm = (function() {
     currentTime;
 
   function initAlarm() {
+    var i;
+
     currentTime = currentTime || new Date();
 
     if (alarmTimer != null) clearInterval(alarmTimer);
 
-    document.alarmForm.h.value = currentTime.getHours();
-    document.alarmForm.m.value = currentTime.getMinutes();
+    $("#date").datepicker();
+    $("#dialog").dialog({ autoOpen: false });
+
+    for (i = 1; i < 13; i++) {
+      document.alarmForm.sh.options.add(new Option((i < 10 ? "0" : "") + i, i));
+      document.alarmForm.h.options.add(new Option((i < 10 ? "0" : "") + i, i));
+    }
+
+    for (i = 0; i < 60; i++) {
+      document.alarmForm.sm.options.add(new Option((i < 10 ? "0" : "") + i, i));
+      document.alarmForm.m.options.add(new Option((i < 10 ? "0" : "") + i, i));
+      document.alarmForm.ss.options.add(new Option((i < 10 ? "0" : "") + i, i));
+    }
+
     document.alarmForm.add.addEventListener("click", function() {
       setAlarm();
     });
@@ -36,16 +50,17 @@ var Alarm = (function() {
   }
 
   function setAlarm() {
-    alarmSet = true;
+    var ah = parseInt(document.alarmForm.h.value, 10),
+      am = parseInt(document.alarmForm.m.value, 10),
+      ampm = document.alarmForm.ampm.value;
 
-    if (
-      isNaN(document.alarmForm.h.value) ||
-      isNaN(document.alarmForm.m.value) ||
-      !document.alarmForm.content.value
-    ) {
+    if (isNaN(ah) || isNaN(am) || !document.alarmForm.content.value) {
       window.alert("값을 입력해주세요!");
       return;
     }
+
+    if (ampm == "PM" && ah < 12) ah = ah + 12;
+    if (ampm == "AM" && ah == 12) ah = ah - 12;
 
     var alarmStorage = localStorage.getItem("alarm"),
       newAlarm = {
@@ -55,8 +70,7 @@ var Alarm = (function() {
             .toString(36)
             .substr(2, 9),
         msg: document.alarmForm.content.value,
-        time:
-          document.alarmForm.h.value * 3600 + document.alarmForm.m.value * 60, //currentTime || new Date(),
+        time: ah * 3600 + am * 60,
         snooze: false,
         alarmMode: document.alarmForm.alarmMode.value,
         clockMode: document.alarmForm.clockMode.value
@@ -71,8 +85,6 @@ var Alarm = (function() {
 
     updateAlarm();
 
-    document.alarmForm.h.value = "";
-    document.alarmForm.m.value = "";
     document.alarmForm.content.value = "";
   }
 
@@ -150,14 +162,31 @@ var Alarm = (function() {
   }
 
   function setTime() {
-    currentTime = new Date(
-      currentTime.getFullYear(),
-      currentTime.getMonth(),
-      currentTime.getDate(),
-      document.alarmForm.sh.value,
-      document.alarmForm.sm.value,
-      document.alarmForm.ss.value
-    );
+    var date = document.alarmForm.date.value.split("/"),
+      year = parseInt(date[2], 10),
+      month = parseInt(date[0], 10) - 1,
+      day = parseInt(date[1], 10),
+      sh = parseInt(document.alarmForm.sh.value, 10),
+      sm = parseInt(document.alarmForm.sm.value, 10),
+      ss = parseInt(document.alarmForm.ss.value, 10),
+      sampm = document.alarmForm.sampm.value;
+
+    if (
+      isNaN(sh) ||
+      isNaN(sm) ||
+      isNaN(ss) ||
+      isNaN(year) ||
+      isNaN(month) ||
+      isNaN(day)
+    ) {
+      window.alert("시간 설정 값을 입력해주세요!");
+      return;
+    }
+
+    if (sampm == "PM" && sh < 12) sh = sh + 12;
+    if (sampm == "AM" && sh == 12) sh = sh - 12;
+
+    currentTime = new Date(year, month, day, sh, sm, ss);
 
     document.alarmForm.sh.value = "";
     document.alarmForm.sm.value = "";
@@ -244,10 +273,19 @@ var Alarm = (function() {
 
     text = h + " : " + m + "\n " + itemObj.msg + "\n " + alarmType + "입니다!!";
 
-    window.alert(text);
+    $("#dialog").text(text);
+    $("#dialog").dialog("open");
   }
 
   return {
-    initAlarm: initAlarm
+    initAlarm,
+    setAlarm,
+    updateAlarm,
+    deleteAlarm,
+    snoozeAlarm,
+    clearAlarm,
+    setTime,
+    countTime,
+    popupAlarm
   };
 })();

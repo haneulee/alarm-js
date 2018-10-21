@@ -2,13 +2,19 @@
 <html>
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>KAKAO ALARM</title>
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 </head>
 
 <body>
   <h3>KAKAO ALARM</h3>
+  <div>알람은 윈도우 경고창으로 표시되고 있습니다. (시간, 메세지, 알람타입)
+    <br> 각 알람의 끄기 버튼을 누르면 버튼의 텍스트가 초록색으로 표시되고, 알람이 정지됩니다.</div>
+  <br>
   <form name=alarmForm>
     <div>
       <b>현재시간 :</b>
@@ -19,12 +25,18 @@
     </div>
     <div>
       <b>시간설정 :</b>
-      <input type=text name=sh size=2>시
-      <input type=text name=sm size=2>분
-      <input type=text name=ss size=2>초
-      <!-- <button id="setTime">설정</button> -->
+      <input type=text id=date>
+      <select name=sh>
+      </select>
+      <select name=sm>
+      </select>
+      <select name=ss>
+      </select>
+      <select name=sampm>
+        <option value="AM">AM</option>
+        <option value="PM">PM</option>
+      </select>
       <input type=button name=setTime value="설정">
-      <!-- html5괜찮으면 input type datelocal으로 -->
     </div>
     <div>
       <b>시계모드 :</b>
@@ -43,8 +55,15 @@
     </div>
     <div>
       <b>알람시간 :</b>
-      <input type=text name=h size=2>시
-      <input type=text name=m size=2>분
+      <select name=h>
+      </select>
+      <select name=m>
+      </select>
+      <select name=ampm>
+        <option value="AM">AM</option>
+        <option value="PM">PM</option>
+      </select>
+
       <div>
         <b>내용 :</b>
         <input type=text name=content placeholder="알람 내용을 입력하시오...">
@@ -55,6 +74,8 @@
   </form>
   <ul id="list">
   </ul>
+  <div id="dialog" title="알람">
+  </div>
 
   <script type='text/javascript' src="alarm.js"></script>
   <script type='text/javascript'>
