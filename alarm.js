@@ -5,7 +5,7 @@ var Alarm = (function() {
     currentTime;
 
   function initAlarm() {
-    var i;
+    var i, opt;
 
     currentTime = currentTime || new Date();
 
@@ -15,14 +15,20 @@ var Alarm = (function() {
     $("#dialog").dialog({ autoOpen: false });
 
     for (i = 1; i < 13; i++) {
-      document.alarmForm.sh.options.add(new Option((i < 10 ? "0" : "") + i, i));
-      document.alarmForm.h.options.add(new Option((i < 10 ? "0" : "") + i, i));
+      opt = document.createElement('option');
+      opt.value = (i < 10 ? "0" : "") + i;
+      opt.innerHTML = i;
+      document.alarmForm.h.appendChild(opt.cloneNode(true));
+      document.alarmForm.sh.appendChild(opt.cloneNode(true));
     }
 
     for (i = 0; i < 60; i++) {
-      document.alarmForm.sm.options.add(new Option((i < 10 ? "0" : "") + i, i));
-      document.alarmForm.m.options.add(new Option((i < 10 ? "0" : "") + i, i));
-      document.alarmForm.ss.options.add(new Option((i < 10 ? "0" : "") + i, i));
+      opt = document.createElement('option');
+      opt.value = (i < 10 ? "0" : "") + i;
+      opt.innerHTML = i;
+      document.alarmForm.sm.appendChild(opt.cloneNode(true));
+      document.alarmForm.m.appendChild(opt.cloneNode(true));
+      document.alarmForm.ss.appendChild(opt.cloneNode(true));
     }
 
     document.alarmForm.add.addEventListener("click", function() {
@@ -90,6 +96,7 @@ var Alarm = (function() {
 
   function updateAlarm() {
     var alarmList = localStorage.getItem("alarm"),
+      listEl = document.getElementById("list"),
       i,
       time,
       h,
