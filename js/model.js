@@ -5,16 +5,10 @@
 		this.storage = storage;
 	}
 
-	Model.prototype.create = function (title, callback) {
-		title = title || '';
+	Model.prototype.create = function (newData, callback) {
 		callback = callback || function () {};
 
-		var newItem = {
-			title: title.trim(),
-			completed: false
-		};
-
-		this.storage.save(newItem, callback);
+		this.storage.save(newData, callback);
 	};
 
 	Model.prototype.read = function (query, callback) {

@@ -8,32 +8,40 @@
 
 		this.$curTimeEl = document.querySelector('.curTime');
 		this.$listEl = document.querySelector('.list');
-		this.$date = document.querySelector('.date');
-        this.$dialog = document.querySelector('.dialog');
+		this.$date = $(document.querySelector('.date'));
+        this.$dialog = $(document.querySelector('.dialog'));
         
-        this.$form = document.alarmForm;
-        this.$setHour = document.alarmForm.sh;
-        this.$alarmHour = document.alarmForm.h;
+		this.$form = document.alarmForm;
+		
+        this.$setHour = this.$form.sh;
+        this.$setMinute = this.$form.sm;
+		this.$setSecond = this.$form.ss;
 
-        this.$setMinute = document.alarmForm.sm;
-        this.$alarmMinute = document.alarmForm.m;
-        this.$setSecond = document.alarmForm.ss;
+		this.$curHour = this.$form.ch;
+        this.$curMinute = this.$form.cm;
+		this.$curSecond = this.$form.cs;
 
-		$(this.$date).datepicker();
-        $(this.$dialog).dialog({ autoOpen: false });
+        this.$alarmHour = this.$form.h;
+        this.$alarmMinute = this.$form.m;
+		this.$ampm = this.$form.ampm;
+		this.$content = this.$form.content;
+		this.$alarmMode = this.$form.alarmMode;
+		this.$clockMode = this.$form.clockMode;
 
-        for (i = 1; i < 13; i++) {
-            opt = document.createElement('option');
-            opt.value = (i < 10 ? "0" : "") + i;
-            opt.innerHTML = i;
-            this.$alarmHour.appendChild(opt.cloneNode(true));
-            this.$setHour.appendChild(opt.cloneNode(true));
-        }
+		this.$date.datepicker();
+		this.$dialog.dialog({ autoOpen: false });
+		
+		opt = document.createElement('option');
 
         for (i = 0; i < 60; i++) {
-            opt = document.createElement('option');
             opt.value = (i < 10 ? "0" : "") + i;
-            opt.innerHTML = i;
+			opt.innerHTML = i;
+			
+			if (i > 0 && i < 13) {
+				this.$alarmHour.appendChild(opt.cloneNode(true));
+				this.$setHour.appendChild(opt.cloneNode(true));
+			}
+
             this.$setMinute.appendChild(opt.cloneNode(true));
             this.$alarmMinute.appendChild(opt.cloneNode(true));
             this.$setSecond.appendChild(opt.cloneNode(true));
@@ -46,29 +54,57 @@
 		if (elem) {
 			this.$todoList.removeChild(elem);
 		}
-    };
+	};
+
+	View.prototype._getAlarmVals = function () {
+		var self = this;
+		return {
+			hour: parseInt(self.$alarmHour.value, 10),
+			minute: parseInt(self.$alarmMinute.value, 10),
+			ampm: self.$ampm.value,
+			msg: self.$content.value,
+			alarmMode: self.$alarmMode.value,
+			clockMode: self.$clockMode.value
+		}
+	};
     
 	View.prototype.render = function (viewCmd, parameter) {
 		var self = this;
 		var viewCommands = {
 			showEntries: function () {
-				self.$todoList.innerHTML = self.template.show(parameter);
+				self.$listEl.innerHTML = self.template.show(parameter);
 			},
-			removeItem: function () {
-				self._removeItem(parameter);
+			// removeItem: function () {
+			// 	self._removeItem(parameter);
+			// },
+			// updateElementCount: function () {
+			// 	self.$todoItemCounter.innerHTML = self.template.itemCounter(parameter);
+			// },
+			// setFilter: function () {
+			// 	self._setFilter(parameter);
+			// },
+			// clearNewTodo: function () {
+			// 	self.$newTodo.value = '';
+			// },
+			// editItem: function () {
+			// 	self._editItem(parameter.id, parameter.title);
+			// },
+			countTime: function () {
+				self.$curTimeEl.innerHTML = parameter.curTime;
+				self.$curHour.value = parameter.curHour;
+				self.$curMinute.value = parameter.curMinute;
+				self.$curSecond.value = parameter.curSecond;
 			},
-			updateElementCount: function () {
-				self.$todoItemCounter.innerHTML = self.template.itemCounter(parameter);
+			popupAlarm: function () {
+        		self.$dialog.text(parameter);
+				self.$dialog.dialog("open");
 			},
-			setFilter: function () {
-				self._setFilter(parameter);
+			clearMsg: function () {
+				self.$content.innerHTML = "";
 			},
-			clearNewTodo: function () {
-				self.$newTodo.value = '';
-			},
-			editItem: function () {
-				self._editItem(parameter.id, parameter.title);
-            }
+			removeAll: function () {
+				self.$listEl.innerHTML = "";
+			}
 		};
 
 		viewCommands[viewCmd]();
@@ -78,7 +114,7 @@
 		var self = this;
 		if (event === 'newAlarm') {
             self.$form.add.addEventListener('click', function () {
-				handler();
+				handler(self._getAlarmVals());
             });
 		} else if (event === 'clearAlarm') {
 			self.$form.clear.addEventListener('click', function () {
@@ -90,7 +126,7 @@
             });
         } else if (event === 'listItem') {
             self.$listEl.addEventListener('click', function (e) {
-                handler(e.target.name);
+                handler(e.target);
             });
         }
 	};

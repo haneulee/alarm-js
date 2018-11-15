@@ -56,7 +56,7 @@
 		} else {
 			updateData.id = new Date().getTime();
 
-			todos.push(updateData);
+			alarms.push(updateData);
 			localStorage.setItem(this._dbName, JSON.stringify(alarms));
 			callback.call(this, [updateData]);
 		}

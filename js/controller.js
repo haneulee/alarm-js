@@ -14,16 +14,16 @@
         self.view = view;
         self.currentTime = new Date();
 
-		self.view.bind('newAlarm', function (title) {
-			self.setAlarm(title);
+		self.view.bind('newAlarm', function (data) {
+			self.addAlarm(data);
         });
         
-        self.view.bind('clearAlarm', function (title) {
-			self.clearAlarm(title);
+        self.view.bind('clearAlarm', function () {
+			self.clearAlarm();
         });
 
-        self.view.bind('setTime', function (title) {
-			self.setTime(title);
+        self.view.bind('setTime', function () {
+			self.setTime();
         });
 
         self.view.bind('listItem', function (name) {
@@ -31,54 +31,90 @@
         });
     }
 
+    Controller.prototype.clearAlarm = function () {
+        self.model.removeAll(function () {
+            self.view.render('removeAll');
+		});
+    };
+
+    Controller.prototype.addAlarm = function (data) {
+        var self = this,
+            ah = data.hour,
+            am = data.minute,
+            ampm = data.ampm,
+            newAlarm;
+
+		if (isNaN(ah) || isNaN(am) || !data.msg) {
+			window.alert("값을 입력해주세요!");
+			return;
+		}
+
+		if (ampm == "PM" && ah < 12) ah = ah + 12;
+        if (ampm == "AM" && ah == 12) ah = ah - 12;
+
+        newAlarm = {
+            msg: data.msg,
+            time: ah * 3600 + am * 60,
+            snooze: false,
+            alarmMode: data.alarmMode,
+            clockMode: data.clockMode
+        };
+
+        self.model.create(newAlarm, function () {
+            self.showAlarms();
+            self.view.render('clearMsg');
+        });
+    };
+
     Controller.prototype.setTimer = function () {
         var self = this,
             alarmTimer;
 
         if (alarmTimer != null) clearInterval(alarmTimer);
 
-        alarmTimer = setInterval(function() {
-            var curTime = self.currentTime,
-                s = curTime.getSeconds(),
-                m = curTime.getMinutes(),
-                h = curTime.getHours();
+        alarmTimer = setInterval(self.countTime(), 1000);
+    };
 
-            s += 1;
+    Controller.prototype.countTime = function () {
+        var self = this,
+            curTime = self.currentTime || new Date(),
+            s = curTime.getSeconds(),
+            m = curTime.getMinutes(),
+            h = curTime.getHours();
 
-            //분이 바뀔 때
-            if (s == 60) {
-                s = 0;
-                m += 1;
+        s += 1;
 
-                self.checkAlarm(h, m);
-            }
+        //분이 바뀔 때
+        if (s == 60) {
+            s = 0;
+            m += 1;
 
-            //시가 바뀔 때
-            if (m == 60) {
-                m = 0;
-                h += 1;
-            }
+            self.checkAlarm(h, m);
+        }
 
-            if (curTime && !isNaN(h) && !isNaN(m) && !isNaN(s)) {
-                curTime = new Date(
-                    curTime.getFullYear(),
-                    curTime.getMonth(),
-                    curTime.getDate(),
-                    h,
-                    m,
-                    s
-                );
-            } else {
-                curTime = new Date();
-            }
+        //시가 바뀔 때
+        if (m == 60) {
+            m = 0;
+            h += 1;
+        }
 
-            self.currentTime = curTime;
+        if (curTime && !isNaN(h) && !isNaN(m) && !isNaN(s)) {
+            self.currentTime = new Date(
+                curTime.getFullYear(),
+                curTime.getMonth(),
+                curTime.getDate(),
+                h,
+                m,
+                s
+            );
 
-            curTimeEl.innerHTML = curTime.toString();
-            document.alarmForm.ch.value = curTime.getHours();
-            document.alarmForm.cm.value = curTime.getMinutes();
-            document.alarmForm.cs.value = curTime.getSeconds();
-          }, 1000);
+            self.view.render('countTime', {
+                curTime : curTime.toString(),
+                curHour : curTime.getHours(),
+                curMinute : curTime.getMinutes(),
+                curSecond : curTime.getSeconds()
+            });
+        }
     };
 
     Controller.prototype.checkAlarm = function (h, m) {
@@ -93,14 +129,14 @@
 
                 if (m == am && h == ah) {
                     self.popupAlarm(data[i], ah, am);
+                    //popup없애고 바로 render로 
                 }
             }
 		});
     };
     
-    Controller.prototype.popupAlarm = function (data, h, m) {
-        var alarmType = "",
-            text;
+    Controller.prototype.popupAlarm = function (itemObj, h, m) {
+        var alarmType = "";
 
         if (itemObj.snooze) {
             return;
@@ -118,30 +154,23 @@
             }
         }
 
-        text = h + " : " + m + "\n " + itemObj.msg + "\n " + alarmType + "입니다!!";
-
-        $("#dialog").text(text);
-        $("#dialog").dialog("open");
-
-        // self.view.render('updateAlarm', data);
-
+        self.view.render('popupAlarm', h + " : " + m + "\n " + itemObj.msg + "\n " + alarmType + "입니다!!");
     };
     
-    Controller.prototype.updateAlarm = function () {
+    Controller.prototype.showAlarms = function () {
 		var self = this;
-		self.model.getCount(function (alarms) {
-			self.view.render('updateAlarm', alarms.active);
+		self.model.read(function (alarms) {
+            alarms.sort((a, b) => a.time > b.time);
+			self.view.render('showEntries', alarms);
 		});
 	};
 
 	Controller.prototype.setView = function (locationHash) {
-		var route = locationHash.split('/')[1];
-        var page = route || '';
-
+		// var route = locationHash.split('/')[1];
+        // var page = route || '';
 
         this.setTimer();
-
-        this.updateAlarm();
+        this.showAlarms();
 	};
 
 	// Export to window
