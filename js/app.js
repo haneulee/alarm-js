@@ -17,9 +17,9 @@
 	var alarm = new Alarm('alarm-vanillajs');
 
 	function setView() {
-		alarm.controller.setView(document.location.hash);
+		alarm.controller.setView();
 	}
 
-	$on(window, 'load', setView);
-	$on(window, 'hashchange', setView);
+	window.addEventListener('load', setView);
+	window.addEventListener('hashchange', setView);
 })();

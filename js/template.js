@@ -4,8 +4,8 @@
 	function Template() {
 		this.defaultTemplate
 		=	'<li id="{{id}}">'
-        +		'<span>{{time}}</span>'
-        +		'<span>{{message}}</span>'
+        +		'<span>{{time}} </span>'
+        +		'<span>{{message}} </span>'
         +		'<input type=button name=snooze value="끄기" style="color:{{buttonColor}};">'
         +       '<input type=button name=delete value="삭제">'
 		+	'</li>';

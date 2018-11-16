@@ -2,34 +2,32 @@
 	'use strict';
 
 	function View(template) {
-        var i, opt;
+		var self = this,
+			i, opt;
 
-        this.template = template;
+		self.template = template;
 
-		this.$curTimeEl = document.querySelector('.curTime');
-		this.$listEl = document.querySelector('.list');
-		this.$date = $(document.querySelector('.date'));
-        this.$dialog = $(document.querySelector('.dialog'));
+		self.$curTimeEl = document.querySelector('.curTime');
+		self.$listEl = document.querySelector('.list');
+        self.$dialog = $(document.querySelector('.dialog'));
         
-		this.$form = document.alarmForm;
+		self.$form = document.alarmForm;
 		
-        this.$setHour = this.$form.sh;
-        this.$setMinute = this.$form.sm;
-		this.$setSecond = this.$form.ss;
+        self.$setHour = self.$form.sh;
+        self.$setMinute = self.$form.sm;
+		self.$setSecond = self.$form.ss;
+		self.$setDate = self.$form.date;
+		self.$setAmpm = self.$form.sampm;
 
-		this.$curHour = this.$form.ch;
-        this.$curMinute = this.$form.cm;
-		this.$curSecond = this.$form.cs;
+        self.$alarmHour = self.$form.h;
+        self.$alarmMinute = self.$form.m;
+		self.$ampm = self.$form.ampm;
+		self.$content = self.$form.content;
+		self.$alarmMode = self.$form.alarmMode;
+		self.$clockMode = self.$form.clockMode;
 
-        this.$alarmHour = this.$form.h;
-        this.$alarmMinute = this.$form.m;
-		this.$ampm = this.$form.ampm;
-		this.$content = this.$form.content;
-		this.$alarmMode = this.$form.alarmMode;
-		this.$clockMode = this.$form.clockMode;
-
-		this.$date.datepicker();
-		this.$dialog.dialog({ autoOpen: false });
+		$(self.$setDate).datepicker();
+		self.$dialog.dialog({ autoOpen: false });
 		
 		opt = document.createElement('option');
 
@@ -38,21 +36,32 @@
 			opt.innerHTML = i;
 			
 			if (i > 0 && i < 13) {
-				this.$alarmHour.appendChild(opt.cloneNode(true));
-				this.$setHour.appendChild(opt.cloneNode(true));
+				self.$alarmHour.appendChild(opt.cloneNode(true));
+				self.$setHour.appendChild(opt.cloneNode(true));
 			}
 
-            this.$setMinute.appendChild(opt.cloneNode(true));
-            this.$alarmMinute.appendChild(opt.cloneNode(true));
-            this.$setSecond.appendChild(opt.cloneNode(true));
+            self.$setMinute.appendChild(opt.cloneNode(true));
+            self.$alarmMinute.appendChild(opt.cloneNode(true));
+            self.$setSecond.appendChild(opt.cloneNode(true));
         }
 	}
 
 	View.prototype._removeItem = function (id) {
-		var elem = qs('[data-id="' + id + '"]');
+		var self = this,
+			elem = document.querySelector('[id="' + id + '"]');
 
 		if (elem) {
-			this.$todoList.removeChild(elem);
+			self.$listEl.removeChild(elem);
+		}
+	};
+
+	View.prototype._editItem = function (id, snooze) {
+		var self = this,
+			elem = self.$listEl.querySelector('[id="' + id + '"]'),
+			snoozeButton = elem ? elem.querySelector('[name="snooze"]') : null;
+
+		if (snoozeButton) {
+			snoozeButton.style.color = snooze;
 		}
 	};
 
@@ -67,6 +76,25 @@
 			clockMode: self.$clockMode.value
 		}
 	};
+
+	View.prototype._getTimeVals = function () {
+		var self = this,
+			date = self.$setDate.value.split("/");
+		return {
+			year: parseInt(date[2], 10),
+			month: parseInt(date[0], 10) - 1,
+			day: parseInt(date[1], 10),
+			hour: parseInt(self.$setHour.value, 10),
+			minute: parseInt(self.$setMinute.value, 10),
+			second: parseInt(self.$setSecond.value, 10),
+			ampm: self.$setAmpm.value
+		}
+	};
+
+	View.prototype._itemId = function (element) {
+		var li = element.parentNode;
+		return parseInt(li.id, 10);
+	};
     
 	View.prototype.render = function (viewCmd, parameter) {
 		var self = this;
@@ -74,26 +102,14 @@
 			showEntries: function () {
 				self.$listEl.innerHTML = self.template.show(parameter);
 			},
-			// removeItem: function () {
-			// 	self._removeItem(parameter);
-			// },
-			// updateElementCount: function () {
-			// 	self.$todoItemCounter.innerHTML = self.template.itemCounter(parameter);
-			// },
-			// setFilter: function () {
-			// 	self._setFilter(parameter);
-			// },
-			// clearNewTodo: function () {
-			// 	self.$newTodo.value = '';
-			// },
-			// editItem: function () {
-			// 	self._editItem(parameter.id, parameter.title);
-			// },
+			removeItem: function () {
+				self._removeItem(parameter);
+			},
+			editItem: function () {
+				self._editItem(parameter.id, parameter.snooze);
+			},
 			countTime: function () {
 				self.$curTimeEl.innerHTML = parameter.curTime;
-				self.$curHour.value = parameter.curHour;
-				self.$curMinute.value = parameter.curMinute;
-				self.$curSecond.value = parameter.curSecond;
 			},
 			popupAlarm: function () {
         		self.$dialog.text(parameter);
@@ -104,6 +120,11 @@
 			},
 			removeAll: function () {
 				self.$listEl.innerHTML = "";
+			},
+			clearTimeSetting: function () {
+				self.$setHour.value = "";
+				self.$setMinute.value = "";
+				self.$setSecond.value = "";
 			}
 		};
 
@@ -121,12 +142,13 @@
 				handler();
             });
 		} else if (event === 'setTime') {
-			self.$form.setTime.addEventListener('click', function () {
-				handler();
+			self.$form.timeSetting.addEventListener('click', function () {
+				handler(self._getTimeVals());
             });
         } else if (event === 'listItem') {
             self.$listEl.addEventListener('click', function (e) {
-                handler(e.target);
+				var target = e.target;
+                handler({id: self._itemId(target), snooze: target.style.color, name: target.name});
             });
         }
 	};

@@ -17,15 +17,12 @@
   <br>
   <form name=alarmForm>
     <div>
-      <b>현재시간 :</b>
-      <input type=text name=ch size=2>시
-      <input type=text name=cm size=2>분
-      <input type=text name=cs size=2>초
+      <b>현재시간 : </b>
       <span class=curTime></span>
     </div>
     <div>
       <b>시간설정 :</b>
-      <input type=text class=date>
+      <input type=text name=date>
       <select name=sh>
       </select>
       <select name=sm>
@@ -36,7 +33,7 @@
         <option value="AM">AM</option>
         <option value="PM">PM</option>
       </select>
-      <input type=button name=setTime value="설정">
+      <input type=button name=timeSetting value="설정">
     </div>
     <div>
       <b>시계모드 :</b>
@@ -77,26 +74,12 @@
   <div class="dialog" title="알람">
   </div>
 
-  <!-- <script type='text/javascript' src="alarm.js"></script>
-  <script type='text/javascript'>
-
-    onload = Alarm.initAlarm;
-  </script> -->
-
-  <!-- <script src="js/helpers.js"></script> -->
-
   <script src="js/store.js"></script>
-
   <script src="js/model.js"></script>
-
   <script src="js/template.js"></script>
-
   <script src="js/view.js"></script>
-
   <script src="js/controller.js"></script>
-
   <script src="js/app.js"></script>
-
 </body>
 
 </html>

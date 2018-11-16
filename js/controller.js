@@ -22,19 +22,51 @@
 			self.clearAlarm();
         });
 
-        self.view.bind('setTime', function () {
-			self.setTime();
+        self.view.bind('setTime', function (data) {
+			self.setTime(data);
         });
 
-        self.view.bind('listItem', function (name) {
-            self[name + "Alarm"](e.target);
+        self.view.bind('listItem', function (data) {
+            self[data.name + "Alarm"](data.id, data.snooze);
         });
     }
 
     Controller.prototype.clearAlarm = function () {
+        var self = this;
+
         self.model.removeAll(function () {
             self.view.render('removeAll');
 		});
+    };
+
+    Controller.prototype.setTime = function (data) {
+        var self = this,
+            year = data.year,
+            month = data.month,
+            day = data.day,
+            sh = data.hour,
+            sm = data.minute,
+            ss = data.second,
+            sampm = data.ampm;
+
+        if (
+            isNaN(sh) ||
+            isNaN(sm) ||
+            isNaN(ss) ||
+            isNaN(year) ||
+            isNaN(month) ||
+            isNaN(day)
+        ) {
+            window.alert("시간 설정 값을 입력해주세요!");
+            return;
+        }
+    
+        if (sampm == "PM" && sh < 12) sh = sh + 12;
+        if (sampm == "AM" && sh == 12) sh = sh - 12;
+    
+        self.currentTime = new Date(year, month, day, sh, sm, ss);
+    
+        self.view.render('clearTimeSetting');
     };
 
     Controller.prototype.addAlarm = function (data) {
@@ -66,13 +98,35 @@
         });
     };
 
+    Controller.prototype.deleteAlarm = function (id) {
+        var self = this;
+
+		self.model.remove(id, function () {
+			self.view.render('removeItem', id);
+        });
+    };
+
+    Controller.prototype.snoozeAlarm = function (id, snooze) {
+        var self = this,
+            snoozeVal = snooze === "green" ? "black" : "green";
+
+        self.model.update(id, { snooze: snoozeVal }, function () {
+			self.view.render('editItem', {
+				id: id,
+				snooze: snoozeVal
+			});
+		});
+    };
+
     Controller.prototype.setTimer = function () {
         var self = this,
             alarmTimer;
 
         if (alarmTimer != null) clearInterval(alarmTimer);
 
-        alarmTimer = setInterval(self.countTime(), 1000);
+        alarmTimer = setInterval(function () {
+            self.countTime();
+        }, 1000);
     };
 
     Controller.prototype.countTime = function () {
@@ -129,32 +183,32 @@
 
                 if (m == am && h == ah) {
                     self.popupAlarm(data[i], ah, am);
-                    //popup없애고 바로 render로 
                 }
             }
 		});
     };
     
-    Controller.prototype.popupAlarm = function (itemObj, h, m) {
-        var alarmType = "";
+    Controller.prototype.popupAlarm = function (data, h, m) {
+        var self = this,
+            alarmType = "";
 
-        if (itemObj.snooze) {
+        if (data.snooze) {
             return;
         }
 
-        if (itemObj.clockMode === "일반") {
+        if (data.clockMode === "일반") {
             alarmType = "소리";
-        } else if (itemObj.clockMode === "진동") {
+        } else if (data.clockMode === "진동") {
             alarmType = "진동";
         } else {
-            if (itemObj.alarmMode === "긴급") {
+            if (data.alarmMode === "긴급") {
                 alarmType = "소리";
             } else {
                 return;
             }
         }
 
-        self.view.render('popupAlarm', h + " : " + m + "\n " + itemObj.msg + "\n " + alarmType + "입니다!!");
+        self.view.render('popupAlarm', h + " : " + m + "\n " + data.msg + "\n " + alarmType + "입니다!!");
     };
     
     Controller.prototype.showAlarms = function () {
@@ -165,10 +219,7 @@
 		});
 	};
 
-	Controller.prototype.setView = function (locationHash) {
-		// var route = locationHash.split('/')[1];
-        // var page = route || '';
-
+	Controller.prototype.setView = function () {
         this.setTimer();
         this.showAlarms();
 	};
